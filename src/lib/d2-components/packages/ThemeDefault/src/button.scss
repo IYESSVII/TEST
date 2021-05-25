@@ -1,0 +1,162 @@
+@mixin button-style ($suffix) {
+  color: var(--d2-button-font-color-#{$suffix});
+  border-color: var(--d2-button-border-color-#{$suffix});
+  background-color: var(--d2-button-background-color-#{$suffix});
+}
+
+@mixin button-color ($color) {
+  @include button-style(#{$color}-base);
+  &:hover {
+    @include button-style(#{$color}-hover);
+  }
+  &:focus {
+    @include button-style(#{$color}-focus);
+  }
+  &:active {
+    @include button-style(#{$color}-active);
+  }
+  @include when(disabled) {
+    &,
+    &:hover,
+    &:focus {
+      cursor: not-allowed;
+      @include button-style(#{$color}-disabled);
+    }
+  }
+  @include when(plain) {
+    @include button-style(#{$color}-plain);
+    &:hover {
+      @include button-style(#{$color}-plain-hover);
+    }
+    &:focus {
+      @include button-style(#{$color}-plain-focus);
+    }
+    &:active {
+      @include button-style(#{$color}-plain-active);
+    }
+    @include when(disabled) {
+      &,
+      &:hover,
+      &:focus {
+        @include button-style(#{$color}-plain-disabled);
+      }
+    }
+  }
+  @include when(text) {
+    border-color: transparent;
+    background-color: transparent;
+    color: var(--d2-button-font-color-#{$color}-text);
+    &:hover {
+      color: var(--d2-button-font-color-#{$color}-text-hover);
+    }
+    &:focus {
+      color: var(--d2-button-font-color-#{$color}-text-focus);
+    }
+    &:active {
+      color: var(--d2-button-font-color-#{$color}-text-active);
+    }
+    @include when(disabled) {
+      &,
+      &:hover,
+      &:focus {
+        border-color: transparent;
+        background-color: transparent;
+        color: var(--d2-button-font-color-#{$color}-text-disabled);
+      }
+    }
+  }
+}
+
+@mixin button-size($py, $px, $font-size, $line-height, $radius) {
+  padding: $py $px;
+  font-size: $font-size;
+  line-height: $line-height;
+  border-radius: $radius;
+  @include when(circle) {
+    padding: $py;
+  }
+}
+
+@include b(button) {
+  display: inline-block;
+  white-space: nowrap;
+  cursor: pointer;
+  border-width: var(--d2-border-width);
+  border-style: var(--d2-border-style);
+  -webkit-appearance: none;
+  text-align: center;
+  box-sizing: border-box;
+  outline: none;
+  margin: 0;
+  transition: --var-transition-speed(fast);
+  font-weight: var(--d2-button-font-weight-base);
+  user-select: none;
+  --ring-color: #{--var-color('gray', 500, 10)};
+  box-shadow: #{--var-shadow(sm)};
+  &:focus,
+  &:active {
+    outline: none;
+  }
+  & + & {
+    margin-left: --var-space(4);
+  }
+  @include when(text) {
+    box-shadow: #{--var-shadow(none)};
+    --ring-color: #{--var-color('gray', 500, 30)};
+  }
+  @include when(round) {
+    border-radius: --var-radius(full);
+  }
+  @include when(circle) {
+    border-radius: 50%;
+  }
+  @include when(ring) {
+    &:focus {
+      box-shadow:
+        0 0 0 var(--ring-offset-width) var(--d2-color-white),
+        0 0 0 calc(var(--ring-offset-width) + var(--ring-width)) var(--ring-color);
+    }
+  }
+  @for $i from nth($--d2-ring-width, 1) through nth($--d2-ring-width, 2) {
+    @include when(ring-width-#{$i}) {
+      --ring-width: var(--d2-ring-width-#{$i});
+    }
+  }
+  @for $i from nth($--d2-ring-offset-width, 1) through nth($--d2-ring-offset-width, 2) {
+    @include when(ring-offset-width-#{$i}) {
+      --ring-offset-width: var(--d2-ring-offset-width-#{$i});
+    }
+  }
+  @include button-color(base);
+  @each $color, $color-setting in $--d2-color {
+    @include m($color) {
+      @include button-color($color);
+      --ring-color: #{--var-color($color, 500, 30)};
+      @include when (text) {
+        --ring-color: #{--var-color($color, 500, 30)};
+      }
+    }
+  }
+  @each $size, $size-setting in $--d2-button-sizes {
+    @if $size == base {
+      @include button-size(
+        var(--d2-button-padding-y-base),
+        var(--d2-button-padding-x-base),
+        var(--d2-button-font-size-base),
+        var(--d2-button-line-height-base),
+        var(--d2-button-border-radius-base)
+      );
+    }
+    @else {
+      @include m($size) {
+        @include button-size(
+          var(--d2-button-padding-y-#{$size}),
+          var(--d2-button-padding-x-#{$size}),
+          var(--d2-button-font-size-#{$size}),
+          var(--d2-button-line-height-#{$size}),
+          var(--d2-button-border-radius-#{$size})
+        );
+      }
+    }
+  }
+}
